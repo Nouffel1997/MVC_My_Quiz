@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use App\Entity\Question;
 
 class SecurityController extends AbstractController
 {
@@ -60,4 +61,40 @@ class SecurityController extends AbstractController
     public function logout()
     {
     }
+
+    /**
+     * @Route("/question", name="security_question")
+     */
+
+    public function question()
+    {
+        $posts = $this->getDoctrine()->getRepository('App:Question')->findAll();
+
+        dump($posts);
+
+        return $this->render(
+            'security/question.html.twig',[
+                'posts' => $posts
+            ]
+        );
+    }
+
+     /**
+     * @Route("/categorie", name="security_categorie")
+     */
+
+    public function categorie()
+    {
+        $posts = $this->getDoctrine()->getRepository('App:Categorie')->findAll();
+
+        dump($posts);
+
+        return $this->render(
+            'security/categorie.html.twig',[
+                'posts' => $posts
+            ]
+        );
+    }
+
+
 }
