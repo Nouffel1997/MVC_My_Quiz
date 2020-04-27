@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+namespace App\Repository;
 
 use App\Entity\User;
 use App\Form\RegistrationType;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Question;
+use src\Repository\QuestionRepository;
 
 class SecurityController extends AbstractController
 {
@@ -65,10 +67,14 @@ class SecurityController extends AbstractController
     /**
      * @Route("/question", name="security_question")
      */
-
-    public function question()
+    public function categorieQuestion($categories) {
+        $em = $this->getDoctrine()->getManager();
+        $question = $em->getRepository('App:Question')->findByCategories($categories);
+        return $this->render('question.html.twig', array('question' => $question));
+    }
+    /*public function question()
     {
-        $posts = $this->getDoctrine()->getRepository('App:Question')->findAll();
+        $posts = $this->getDoctrine()->getRepository('App:Question')->findBy(array('id' => 1));
 
         dump($posts);
 
@@ -77,7 +83,7 @@ class SecurityController extends AbstractController
                 'posts' => $posts
             ]
         );
-    }
+    }*/
 
      /**
      * @Route("/categorie", name="security_categorie")
@@ -96,5 +102,22 @@ class SecurityController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/reponse", name="security_reponse")
+     */
+
+    public function reponse()
+    {
+        $posts = $this->getDoctrine()->getRepository('App:Reponse')->findAll();
+
+        dump($posts);
+
+        return $this->render(
+            'security/reponse.html.twig',[
+                'posts' => $posts
+            ]
+        );
+    }
+    
 
 }

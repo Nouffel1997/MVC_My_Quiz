@@ -47,4 +47,16 @@ class QuestionRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findByCategories($categories)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->Join('c.categorie', 's')
+            //->addSelect('s')
+            ->where('s.categorie IN (:categories)')
+            ->setParameter('id_categorie', $categories);
+        //dump($qb);
+
+        return $qb->getQuery()->getResult();
+    }
 }

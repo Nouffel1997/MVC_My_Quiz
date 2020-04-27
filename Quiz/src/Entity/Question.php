@@ -17,6 +17,7 @@ class Question
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Categorie")
      * @ORM\Column(type="integer")
      */
     private $id_categorie;
