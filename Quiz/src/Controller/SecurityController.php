@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Question;
+use App\Repository\QuestionRepository as RepositoryQuestionRepository;
 use src\Repository\QuestionRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
@@ -67,9 +68,7 @@ class SecurityController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/question", name="security_question")
-     */
+
     /*public function categorieQuestion($categories)
     {
         //$em = $this->getDoctrine()->getManager();
@@ -77,16 +76,24 @@ class SecurityController extends AbstractController
         $question = $this->getDoctrine()->getRepository('App:Question')->findByCategorie($categories);
         return $this->render('question.html.twig', array('question' => $question));
     }*/
+
+    /**
+     * @Route("/question", name="security_question")
+     */
     public function question()
     {
-        $posts = $this->getDoctrine()->getRepository('App:Question')->findBy(array('id' => 1));
+        $posts = $this->getDoctrine()->getRepository('App:Question')->findBy(['id_categorie' => 1, 'id' => 1]);
+        $bob = $this->getDoctrine()->getRepository('App:Reponse')->findBy(['id_question' => 1]);
 
         dump($posts);
+        dump($bob);
 
         return $this->render(
             'security/question.html.twig',
             [
-                'posts' => $posts
+                'posts' => $posts,
+                'bobs' => $bob
+                
             ]
         );
     }
@@ -115,7 +122,7 @@ class SecurityController extends AbstractController
 
     public function reponse()
     {
-        $posts = $this->getDoctrine()->getRepository('App:Reponse')->findAll();
+        $posts = $this->getDoctrine()->getRepository('App:Reponse')->findBy(['id_question' => 1, 'reponse_expected' => 1]);
 
         dump($posts);
 
@@ -127,6 +134,17 @@ class SecurityController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/bob", name="bob")
+     */
+
+    public function categorieQuestion(RepositoryQuestionRepository $question)
+    {
+        //$em = $this->getDoctrine()->getManager();
+        //$question = $em->getRepository('App:Question')->findByCategories($categories);
+        $question = $question->findByQuestion($question);
+        return $this->render('question.html.twig', array('question' => $question));
+    }
 
 
 
@@ -138,7 +156,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/forgotten_password", name="app_forgotten_password")
      */
-    public function forgottenPassword(
+    /*public function forgottenPassword(
         Request $request,
         UserPasswordEncoderInterface $encoder,
         \Swift_Mailer $mailer,
@@ -153,7 +171,7 @@ class SecurityController extends AbstractController
             $user = $entityManager->getRepository(User::class)->findOneByEmail($email);
             /* @var $user User */
 
-            if ($user === null) {
+            /*if ($user === null) {
                 $this->addFlash('danger', 'Email Inconnu');
                 return $this->redirectToRoute('security_login');
             }
@@ -185,5 +203,5 @@ class SecurityController extends AbstractController
         }
 
         return $this->render('security/forgotten_password.html.twig');
-    }
+    }*/
 }

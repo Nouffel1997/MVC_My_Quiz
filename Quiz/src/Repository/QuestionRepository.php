@@ -49,18 +49,26 @@ class QuestionRepository extends ServiceEntityRepository
     }
     */
 
-    public function findByCategories($categories)
+    /*public function findByQuestion($question)
     {
         $qb = $this->createQueryBuilder('c')
-            ->Join('c.categorie', 's')
+            ->Join('c.id_categorie', 's')
             //->addSelect('s')
-            ->where('s.categorie IN (:categories)')
-            ->setParameter('id_categorie', $categories);
+            ->where('s.id_categorie IN (:id_categorie)')
+            ->setParameter('id_categorie', $question);
         //dump($qb);
 
         return $qb->getQuery()->getResult();
-    }
+    }*/
 
-    
+    public function findByQuestion($question)
+    {
+        $qb = $this->createQueryBuilder('c')
+        ->select('c')
+            ->leftJoin('App\Repository\CategorieRepository', 'd','WITH', 'c.name = d.name AND c.score < d.score')
+            ->where( 'd.score IS NULL' )
+            ->orderBy( 'c.name','DESC' );
+        return $qb->getQuery()->getResult();
+    }
 }
 

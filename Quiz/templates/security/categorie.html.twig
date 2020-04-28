@@ -7,6 +7,7 @@
  <ul>
         {% for post in posts %}
         <li>{{ post.name }}</li>
+        <a href="{{ path('security_question') }}">Question</a>
         {% endfor %}
     </ul>
 
