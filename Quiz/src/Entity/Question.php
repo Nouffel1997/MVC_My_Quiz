@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\QuestionRepository")
+ * @ORM\Table(name="question")
  */
 class Question
 {
@@ -55,4 +56,5 @@ class Question
 
         return $this;
     }
+  
 }
