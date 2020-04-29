@@ -47,4 +47,15 @@ class CategorieRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+    /*public function findBy(){
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('c')
+            ->from('App\Entity\Categorie', 'c')
+            ->join('c.id', 'q')
+            ->where('q.id_categorie = c.id');
+       
+        return $qb->getQuery()->getResult();
+        }*/
 }

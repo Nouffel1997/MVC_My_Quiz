@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Reponse;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @method Reponse|null find($id, $lockMode = null, $lockVersion = null)
@@ -47,4 +48,31 @@ class ReponseRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findByReponse(int $page, int $lenght){
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('r')
+            ->from('App\Entity\Reponse', 'r')
+            ->join('r.id_question', 'q')
+            ->where('r.id_question = q.id')
+            ->setFirstResult(($page - 1)* $lenght)
+            ->setMaxResults($lenght);
+            //->andWhere('r.id_question = 1', 'q.id = 1');
+       
+        return $qb->getQuery()->getResult();
+        }
+
+
+        public function findByReponseExpected(int $page, int $lenght){
+            $qb = $this->getEntityManager()->createQueryBuilder();
+            $qb->select('r')
+                ->from('App\Entity\Reponse', 'r')
+                ->join('r.reponse_expected', 'q')
+                ->where('r.reponse_expected = q.id')
+                ->setFirstResult(($page - 1)* $lenght)
+                ->setMaxResults($lenght);
+                //->andWhere('r.id_question = 1', 'q.id = 1');
+           
+            return $qb->getQuery()->getResult();
+            }
 }

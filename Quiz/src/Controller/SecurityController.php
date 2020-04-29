@@ -5,18 +5,21 @@ namespace App\Controller;
 
 
 use App\Entity\User;
-use App\Form\RegistrationType;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-//use Symfony\Component\BrowserKit\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use App\Entity\Reponse;
 use App\Entity\Question;
-use App\Repository\QuestionRepository as RepositoryQuestionRepository;
+use App\Form\RegistrationType;
+//use Symfony\Component\BrowserKit\Request;
 use src\Repository\QuestionRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\ReponseRepository as RepositoryReponseRepository;
+use App\Repository\QuestionRepository as RepositoryQuestionRepository;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use App\Repository\CategorieRepository as RepositoryCategorieRepository;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class SecurityController extends AbstractController
@@ -69,22 +72,23 @@ class SecurityController extends AbstractController
     }
 
 
-    /*public function categorieQuestion($categories)
+    public function categorieQuestione(RepositoryQuestionRepository $categories)
     {
         //$em = $this->getDoctrine()->getManager();
-        //$question = $em->getRepository('App:Question')->findByCategories($categories);
-        $question = $this->getDoctrine()->getRepository('App:Question')->findByCategorie($categories);
+        //$question = $em->getRepository('App:Question')->findByQuestion();
+        $question = $this->getDoctrine()->getRepository('App:Question')->findAll();
         return $this->render('question.html.twig', array('question' => $question));
-    }*/
+    }
 
     /**
-     * @Route("/question", name="security_question")
+     * @Route("/question", name="security_questiones")
      */
     public function question()
     {
         $posts = $this->getDoctrine()->getRepository('App:Question')->findBy(['id_categorie' => 1, 'id' => 1]);
+        
         $bob = $this->getDoctrine()->getRepository('App:Reponse')->findBy(['id_question' => 1]);
-
+        
         dump($posts);
         dump($bob);
 
@@ -92,11 +96,37 @@ class SecurityController extends AbstractController
             'security/question.html.twig',
             [
                 'posts' => $posts,
-                'bobs' => $bob
+                'bobs' => $bob,
                 
             ]
         );
     }
+
+
+     /**
+     * @Route("/question", name="security_question")
+     */
+    public function questiones()
+    {
+        
+        $q2 = $this->getDoctrine()->getRepository('App:Question')->findBy(['id_categorie' => 2, 'id' => 2]);
+        
+        $r2 = $this->getDoctrine()->getRepository('App:Reponse')->findBy(['id_question' => 2]);
+       
+       
+
+        return $this->render(
+            'security/question.html.twig',
+            [
+                
+                'q2' => $q2,
+                'r2' => $r2,
+                
+            ]
+        );
+    }
+
+
 
     /**
      * @Route("/categorie", name="security_categorie")
@@ -138,19 +168,27 @@ class SecurityController extends AbstractController
      * @Route("/bob", name="bob")
      */
 
-    public function categorieQuestion(RepositoryQuestionRepository $question)
+    public function categorieQuestion(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByCategories($categories);
-        $question = $question->findByQuestion($question);
-        return $this->render('question.html.twig', array('question' => $question));
+        $question = $question->findByQuestion(3, 1);
+        $moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponse(3, 3);
+        return $this->render('security/question.html.twig', array('posts' => $question, 'bob' => $moi));
     }
 
+ /**
+     * @Route("/reponseexpected", name="reponse_expected")
+     */
 
-
-
-
-
+    public function reponseExpected(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi)
+    {
+        //$em = $this->getDoctrine()->getManager();
+        //$question = $em->getRepository('App:Question')->findByCategories($categories);
+        $question = $question->findByQuestion(1, 1);
+        $moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponseExpected(3, 1);
+        return $this->render('security/reponse.html.twig', array('posts' => $moi));
+    }
 
 
     /**

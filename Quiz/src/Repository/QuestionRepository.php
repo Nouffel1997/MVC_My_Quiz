@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Categorie;
 use App\Entity\Question;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -61,14 +62,38 @@ class QuestionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }*/
 
-    public function findByQuestion($question)
-    {
-        $qb = $this->createQueryBuilder('c')
-        ->select('c')
-            ->leftJoin('App\Repository\CategorieRepository', 'd','WITH', 'c.name = d.name AND c.score < d.score')
-            ->where( 'd.score IS NULL' )
-            ->orderBy( 'c.name','DESC' );
+
+    /*public function findByQuestion(){
+    $qb = $this->createQueryBuilder('q');
+    $qb->select('question, categorie.name')
+        ->innerJoin('App\Repository\CategorieRepository','ON' ,'question.id_categorie = categorie.id')
+        ->groupBy('categorie.id');
+
+    return $qb->getQuery()->getResult();
+    }*/
+
+
+    public function findByQuestin(){
+       $qb= $this->createQueryBuilder('q')
+        ->join('q.categorie', 'c')
+        ->select('c.name', 'q.question')
+        ->where('c.id = q.id_categorie', );
+    
         return $qb->getQuery()->getResult();
-    }
+        }
+
+
+        public function findByQuestion(int $page, int $lenght){
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('q')
+            ->from('App\Entity\Question', 'q')
+            ->join('q.id_categorie', 'c')
+            ->where('q.id_categorie = c.id')
+            ->setFirstResult(($page - 1)* $lenght)
+            ->setMaxResults($lenght);
+            //->andWhere('q.id_categorie = 1', 'q.id = 1');
+       
+        return $qb->getQuery()->getResult();
+        }
 }
 

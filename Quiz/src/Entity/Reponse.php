@@ -17,7 +17,9 @@ class Reponse
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * * @var integer $id_question
+ * @ORM\ManyToOne(targetEntity="Question")
+ * @ORM\JoinColumn(name="id_question", referencedColumnName="id")
      */
     private $id_question;
 
@@ -27,7 +29,9 @@ class Reponse
     private $reponse;
 
     /**
-     * @ORM\Column(type="integer")
+     ** @var integer $reponse_expected
+ * @ORM\ManyToOne(targetEntity="Question")
+ * @ORM\JoinColumn(name="reponse_expected", referencedColumnName="id")
      */
     private $reponse_expected;
 
