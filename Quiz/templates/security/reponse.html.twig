@@ -9,5 +9,7 @@
         <li>La bonne reponse est : {{ post.reponse }}</li>
         {% endfor %}
     </ul>
+     <li><a href="{{ path('reponse_expected', {page: 1}) }}">1</a></li>
+       <li><a href="{{ path('reponse_expected', {page: 2}) }}">2</a></li>
 
 {% endblock %}

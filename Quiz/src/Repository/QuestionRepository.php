@@ -7,6 +7,7 @@ use App\Entity\Question;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Lexer;
 
 /**
  * @method Question|null find($id, $lockMode = null, $lockVersion = null)
@@ -73,27 +74,40 @@ class QuestionRepository extends ServiceEntityRepository
     }*/
 
 
-    public function findByQuestin(){
-       $qb= $this->createQueryBuilder('q')
-        ->join('q.categorie', 'c')
-        ->select('c.name', 'q.question')
-        ->where('c.id = q.id_categorie', );
-    
+    public function findByQuestin()
+    {
+        $qb = $this->createQueryBuilder('q')
+            ->join('q.categorie', 'c')
+            ->select('c.name', 'q.question')
+            ->where('c.id = q.id_categorie',);
+
         return $qb->getQuery()->getResult();
-        }
+    }
 
 
-        public function findByQuestion(int $page, int $lenght){
+    public function findByQuestion(int $page, int $lenght)
+    {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('q')
             ->from('App\Entity\Question', 'q')
             ->join('q.id_categorie', 'c')
             ->where('q.id_categorie = c.id')
-            ->setFirstResult(($page - 1)* $lenght)
+            ->setFirstResult(($page - 1) * $lenght)
             ->setMaxResults($lenght);
-            //->andWhere('q.id_categorie = 1', 'q.id = 1');
-       
-        return $qb->getQuery()->getResult();
-        }
-}
+        //->andWhere('q.id_categorie = 1', 'q.id = 1');
 
+        return $qb->getQuery()->getResult();
+    }
+
+    public function count()
+    {
+
+        return $this->getEntityManager()->createQueryBuilder('q')
+            ->select('COUNT(q.id)')
+            ->from('App\Entity\Question', 'q')
+            ->join('q.id_categorie', 'c')
+            ->where('q.id_categorie = c.id')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+}

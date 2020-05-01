@@ -168,26 +168,28 @@ class SecurityController extends AbstractController
      * @Route("/bob", name="bob")
      */
 
-    public function categorieQuestion(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi)
+    public function categorieQuestion(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi, Request $request)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByCategories($categories);
-        $question = $question->findByQuestion(3, 1);
-        $moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponse(3, 3);
-        return $this->render('security/question.html.twig', array('posts' => $question, 'bob' => $moi));
+        //$question = $question->findByQuestion(3, 1);
+        //$moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponse(1, 3);
+        return $this->render('security/question.html.twig', ['posts' => $question->findByQuestion((int)$request->query->get('page', 1), 1), 'bob' => $moi->findByReponse((int)$request->query->get('page', 1), 3),
+        'totalPosts' => $question->count()
+        ]);
     }
 
  /**
      * @Route("/reponseexpected", name="reponse_expected")
      */
 
-    public function reponseExpected(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi)
+    public function reponseExpected(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi, Request $request)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByCategories($categories);
-        $question = $question->findByQuestion(1, 1);
-        $moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponseExpected(3, 1);
-        return $this->render('security/reponse.html.twig', array('posts' => $moi));
+        //$question = $question->findByQuestion(1, 1);
+        //$moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponseExpected(3, 1);
+        return $this->render('security/reponse.html.twig', array('posts' => $moi->findByReponseExpected((int)$request->query->get('page', 1), 1)));
     }
 
 
