@@ -7,8 +7,14 @@
  <ul>
         {% for post in posts %}
         <li>{{ post.name }}</li>
-        <a href="{{ path('security_question') }}">Question</a>
+       <a href="/categorie/edit/{{ post.id }}" class="btn btn-dark">Modifier</a>
+       <a href="/categorie/delete/{{ post.id }}" class="btn btn-dark">Supprimer</a>
+       
+
         {% endfor %}
+       <a href="{{ path('new_categorie') }}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Créer une
+    Categorie</a>
+    
     </ul>
 
 {% endblock %}

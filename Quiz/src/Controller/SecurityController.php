@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 
-
+use App\Entity\Categorie;
 use App\Entity\User;
 use App\Entity\Reponse;
 use App\Entity\Question;
@@ -19,8 +19,13 @@ use App\Repository\ReponseRepository as RepositoryReponseRepository;
 use App\Repository\QuestionRepository as RepositoryQuestionRepository;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Repository\CategorieRepository as RepositoryCategorieRepository;
+use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+//use Symfony\Component\HttpFoundation\Response;
 
 class SecurityController extends AbstractController
 {
@@ -244,4 +249,74 @@ class SecurityController extends AbstractController
 
         return $this->render('security/forgotten_password.html.twig');
     }*/
+
+     /**
+     * @Route("/categorie/new", name="new_categorie")
+     * Method({"GET", "POST"})
+     */
+    public function new(Request $request)
+    {
+        $Categorie = new Categorie();
+        $form = $this->createFormBuilder($Categorie)
+            ->add('name', TextType::class)
+            ->add('save',SubmitType::class,array('label' => 'Créer'))->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $Categorie = $form->getData();
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($Categorie);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('security_categorie');
+        }
+        return $this->render('security/createcat.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * @Route("/categorie/edit/{id}", name="edit_categorie")
+     * Method({"GET", "POST"})
+     */
+    public function edit(Request $request, $id)
+    {
+        $Categorie = new Categorie();
+        $Categorie = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+
+        $form = $this->createFormBuilder($Categorie)
+            ->add('name', TextType::class)
+            ->add('save', SubmitType::class, array(
+                'label' => 'Modifier'
+            ))->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->flush();
+
+            return $this->redirectToRoute('security_categorie');
+        }
+
+        return $this->render('security/editcat.html.twig', ['form' => $form->createView()]);
+    }
+
+
+    /**
+ * @Route("/categorie/delete/{id}",name="delete_categorie")
+ * 
+ */
+ public function delete(Request $request, $id) {
+    $Categorie = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+   
+    $entityManager = $this->getDoctrine()->getManager();
+    $entityManager->remove($Categorie);
+    $entityManager->flush();
+   
+    $response = new Reponse();
+    
+    return $this->redirectToRoute('security_categorie');
+    }
 }
