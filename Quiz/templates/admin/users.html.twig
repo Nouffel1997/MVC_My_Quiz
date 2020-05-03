@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %} Users{% endblock %}
+
+
+{% block body %}
+<h1>Users</h1>
+    <table id="users" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>email</th>
+                <th>roles</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{user.id}}
+                    <td>{{user.email}}
+                    <td>
+                        {% for role in user.roles %}
+                            {% if role == "ROLE_USER" %}
+                                User
+                             {% elseif role == "ROLE_EDITOR" %}
+                                Editor
+                             {% elseif role == "ROLE_ADMIN" %}
+                                Admin
+                                {% endif %}
+                                {% endfor %} 
+                    </td>
+                    <td>
+<a href="{{ path('admin_edit_user', {'id': user.id}) }}" class="btn btn-dark">Edit</a>
+<a href="{{ path('admin_delete_user', {'id': user.id}) }}" class="btn btn-dark">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <a href="{{ path('admin_new_use') }}" class="btn btn-dark">Create</a>
+        </tbody>
+    </table>
+
+{% endblock %}

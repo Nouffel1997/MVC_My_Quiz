@@ -19,9 +19,7 @@
     <div class="form-group">
         <button type="submit" class="btn btn-success">Connexion</button>
     </div>
-     <div>
-            <a  href="{{ path('app_forgotten_password') }}">Forgotten password</a>
-        </div>
+     
 </form>
 
   {% if not app.user %}
@@ -33,5 +31,6 @@
         <a href="{{ path('security_logout')}}" class="nav-link">Déconnexion</a>
       </li>
   {% endif %}
+  <a href="{{ path('security_categorie')}}" class="nav-link">Categories</a>
 
 {% endblock %}

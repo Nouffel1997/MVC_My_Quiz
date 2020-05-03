@@ -90,10 +90,31 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getRoles()
+/**
+ * @ORM\Column(type="json")
+ */
+
+ private $roles = [];
+
+    public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles;
+
+        $roles[] = 'ROLE_USER';
+    
+        return array_unique($roles);
     }
+
+
+    public function setRoles(array $roles): self
+    {
+
+        $this->roles = $roles;
+
+        return $this;
+
+    }
+
     public function eraseCredentials()
     {
         
@@ -111,6 +132,11 @@ class User implements UserInterface
     protected $resetToken;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $token;
+
+    /**
      * @return string
      */
     public function getResetToken(): string
@@ -124,5 +150,17 @@ class User implements UserInterface
     public function setResetToken(?string $resetToken): void
     {
         $this->resetToken = $resetToken;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
+
+        return $this;
     }
 }

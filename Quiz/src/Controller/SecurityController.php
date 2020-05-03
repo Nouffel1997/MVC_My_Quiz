@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\ReponseRepository as RepositoryReponseRepository;
-use App\Repository\QuestionRepository as RepositoryQuestionRepository;
+use App\Repository\QuestionRepository as QquestionRepository;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Repository\CategorieRepository as RepositoryCategorieRepository;
 use Symfony\Component\BrowserKit\Response;
@@ -26,14 +26,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 //use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class SecurityController extends AbstractController
 {
     /**
      * @Route("/inscription", name="security_registration")
      */
-
-    public function registration(Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
+    public function registration(Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $encoder,  \Swift_Mailer $mailer)
     {
         $user = new User();
 
@@ -45,14 +45,91 @@ class SecurityController extends AbstractController
             $hash = $encoder->encodePassword($user, $user->getPassword());
             $user->setPassword($hash);
 
+            $token = bin2hex(random_bytes(10));
+            $user->setToken($token);
+            $hashToken = $encoder->encodePassword($user, $user->getToken());
+            $user->setToken($hashToken);
+
             $em->persist($user);
             $em->flush();
+
+            $emailUser = $user->getEmail();
+
+
+            $url = $this->generateUrl('token', ['token' => $token, 'id' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            $message = (new \Swift_Message('Email de Confirmation'))
+                ->setSubject('Confirmation d\'adresse email')
+                ->setFrom('nouf.2nd2@gmail.com')
+                ->setTo($emailUser)
+                ->setBody(
+                    $this->renderView('security/contenue.html.twig', [
+                        'user' => $user,
+                        'url' => $url,
+                        'token' => $token
+                    ]),
+                    'text/html'
+                );
+            $mailer->send($message);
+            $this->addFlash('message', 'Un mail de confirmation vous a été envoyé');
+
+            return $this->redirectToRoute('confirm_mail');
         }
+        return $this->render('security/registration.html.twig', ['form' => $form->createView()]);
+    }
+
+    // public function registration(Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
+    // {
+    //     $user = new User();
+
+    //     $form = $this->createForm(RegistrationType::class, $user);
+
+    //     $form->handleRequest($request);
+
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $hash = $encoder->encodePassword($user, $user->getPassword());
+    //         $user->setPassword($hash);
+
+    //         $em->persist($user);
+    //         $em->flush();
+    //     }
+    //     return $this->render(
+    //         'security/registration.html.twig',
+    //         ['form' => $form->createView()]
+    //     );
+    // }
+
+
+  /**
+     * @Route("/confirm_mail", name="confirm_mail")
+     */
+
+    public function confirm_mail()
+    {
+
+        $user =  $this->getDoctrine()
+            ->getRepository(User::class);
+
+        return $this->render('security/mailconf.html.twig', ['user' => $user]);
+    }
+
+    /**
+     * @Route("/confirm_token/{token}", name="token")
+     */
+    public function confirm_token(string $token, AuthenticationUtils $authenticationUtils)
+    {
+        $lastUsername = $authenticationUtils->getLastUsername();
         return $this->render(
-            'security/registration.html.twig',
-            ['form' => $form->createView()]
+            'security/token.html.twig',
+            [
+                'token' => $token,
+                'lastusername' => $lastUsername
+            ]
         );
     }
+
+
+
     /**
      * @Route("/connexion", name="security_login")
      */
@@ -77,7 +154,7 @@ class SecurityController extends AbstractController
     }
 
 
-    public function categorieQuestione(RepositoryQuestionRepository $categories)
+    public function categorieQuestione(QquestionRepository $categories)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByQuestion();
@@ -169,11 +246,28 @@ class SecurityController extends AbstractController
         );
     }
 
+
+     /**
+     * @Route("/sigle", name="sigle")
+     */
+
+    public function categorieSigle(QquestionRepository $question, RepositoryReponseRepository $moi, Request $request)
+    {
+        //$em = $this->getDoctrine()->getManager();
+        //$question = $em->getRepository('App:Question')->findByCategories($categories);
+        //$question = $question->findByQuestion(3, 1);
+        //$moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponse(1, 3);
+        
+        return $this->render('security/sigle.html.twig', ['posts' => $question->findByQuestion((int)$request->query->get('page', 11), 1), 'bob' => $moi->findByReponse((int)$request->query->get('page', 11), 3),
+        'totalPosts' => $question->count()
+        ]);
+    }
+
     /**
      * @Route("/bob", name="bob")
      */
 
-    public function categorieQuestion(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi, Request $request)
+    public function categorieQuestion(QquestionRepository $question, RepositoryReponseRepository $moi, Request $request)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByCategories($categories);
@@ -184,11 +278,29 @@ class SecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/definition", name="definition")
+     */
+
+    public function categorieDefinition(QquestionRepository $question, RepositoryReponseRepository $moi, Request $request)
+    {
+        //$em = $this->getDoctrine()->getManager();
+        //$question = $em->getRepository('App:Question')->findByCategories($categories);
+        //$question = $question->findByQuestion(3, 1);
+        //$moi = $this->getDoctrine()->getManager()->getRepository('App:Reponse')->findByReponse(1, 3);
+        
+        return $this->render('security/definition.html.twig', ['posts' => $question->findByQuestion((int)$request->query->get('page', 11), 1), 'bob' => $moi->findByReponse((int)$request->query->get('page', 11), 3),
+        'totalPosts' => $question->count()
+        ]);
+    }
+
+
+
  /**
      * @Route("/reponseexpected", name="reponse_expected")
      */
 
-    public function reponseExpected(RepositoryQuestionRepository $question, RepositoryReponseRepository $moi, Request $request)
+    public function reponseExpected(QquestionRepository $question, RepositoryReponseRepository $moi, Request $request)
     {
         //$em = $this->getDoctrine()->getManager();
         //$question = $em->getRepository('App:Question')->findByCategories($categories);
@@ -251,6 +363,7 @@ class SecurityController extends AbstractController
     }*/
 
      /**
+      * @IsGranted("ROLE_ADMIN")
      * @Route("/categorie/new", name="new_categorie")
      * Method({"GET", "POST"})
      */
@@ -277,6 +390,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     *  @IsGranted("ROLE_ADMIN")
      * @Route("/categorie/edit/{id}", name="edit_categorie")
      * Method({"GET", "POST"})
      */
@@ -305,6 +419,7 @@ class SecurityController extends AbstractController
 
 
     /**
+     * @IsGranted("ROLE_ADMIN")
  * @Route("/categorie/delete/{id}",name="delete_categorie")
  * 
  */
@@ -315,7 +430,7 @@ class SecurityController extends AbstractController
     $entityManager->remove($Categorie);
     $entityManager->flush();
    
-    $response = new Reponse();
+    
     
     return $this->redirectToRoute('security_categorie');
     }

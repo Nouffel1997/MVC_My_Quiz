@@ -11,11 +11,11 @@
         {% endfor %}
 {% for bob in bob %}
         <li>{{ bob.reponse }}</li>
-        <a href="{{ path('reponse_expected') }}">Choix</a><br/>
+        <a href="{{ path('reponse_expected') }}">Question</a><br/>
         {% endfor %}
 
-        {% for i in 1..((totalPosts/11)|round(0, 'ceil')) %}
-        <a href="{{ path('bob', {page: i}) }}">{{ i }}</a>
+        {% for i in 21..((totalPosts/3.7)|round(0, 'ceil')) %}
+        <a href="{{ path('definition', {page: i}) }}">{{ i }}</a>
         {% endfor %}
       
     </ul>
